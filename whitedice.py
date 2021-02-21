@@ -57,7 +57,7 @@ HELP_REGEX = re.compile(r'!help')
 VERSION_REGEX = re.compile(r'!version(?: (.+))?')
 ROLL_REGEX = re.compile(r'^\!roll (?:(\d+)?\s?[dD]\s?(\d{1,4})|(str|dex|wis|cha|int|con))\s?([+-]\s?\d{1,2})?\s?(\+{1,2}|-{1,2})?\s?(<=?\s?\d{1,4})?\s?(>=?\s?\d{1,4})?$')
 STAT_REGEX = re.compile(r'\!stat (str|dex|con|int|wis|cha|av|ac) (\d{1,2})')
-MACRO_REGEX = re.compile(r'\!macro ([a-zA-Z0-9]+) (.+)')
+MACRO_REGEX = re.compile(r'\!macro ([a-zA-Z0-9]+)\s?(.+)?')
 
 STAT_NAMES = {
     'str': 'strength',
@@ -121,8 +121,13 @@ class WhiteDiceBot(discord.Client):
             await self.register_stat(message, stat.lower(), value)
         elif m.match(MACRO_REGEX):
             macro = m.group(1)
-            value = m.group(2).strip()
-            await self.register_macro(message, macro, value)
+            value = m.group(2).strip() if m.group(2) else None
+            if value:
+                await self.register_macro(message, macro, value)
+            else:
+                new_cmd = self.db.get_macro(self.author, macro)
+                m = m = ValueRetainingRegexMatcher(new_cmd)
+                await self.roll(message, m)
             
 
     async def register_stat(self, message, stat, value):
