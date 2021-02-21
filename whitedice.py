@@ -125,8 +125,9 @@ class WhiteDiceBot(discord.Client):
             if value:
                 await self.register_macro(message, macro, value)
             else:
-                new_cmd = self.db.get_macro(self.author, macro)
-                m = m = ValueRetainingRegexMatcher(new_cmd)
+                new_cmd = await self.db.get_macro(message.author, macro)
+                m = ValueRetainingRegexMatcher(new_cmd)
+                m.match(ROLL_REGEX)
                 await self.roll(message, m)
             
 
