@@ -109,10 +109,10 @@ class WhiteDiceBot(discord.Client):
         elif m.match(VERSION_REGEX):
             num_commits = 5 if m.group(1) else 1
             version_content = subprocess.check_output(['git', 'log', '--use-mailmap', f'-n{num_commits}'])
-            await message.channel.send("😸  💬   I'm the best version of myself, just like my dad taught me to be!" + 
+            await message.channel.send("Latest commits..." + 
                 "\n```" + str(version_content, 'utf-8') + "```")
         elif m.match(HELP_REGEX):
-            await message.channel.send(f"😽  Here's what I know how to do (so far)!\n```{HELP_TEXT}```")
+            await message.channel.send(f"```{HELP_TEXT}```")
         elif m.match(ROLL_REGEX):
             await self.roll(message, m)
         elif m.match(STAT_REGEX):
