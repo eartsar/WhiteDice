@@ -11,7 +11,6 @@ import discord
 from util import ValueRetainingRegexMatcher
 from persist import DatabaseManager
 
-# https://discord.com/api/oauth2/authorize?client_id=812816570556088331&permissions=67648&scope=bot
 # Parse the command line arguments
 parser = argparse.ArgumentParser(description='Run the Whitehack dice bot.')
 parser.add_argument('--config', type=str, required=True, help='The path to the configuration yaml file.')
