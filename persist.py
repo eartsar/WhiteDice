@@ -4,7 +4,7 @@ import aiosqlite
 class DatabaseManager():
     def __init__(self, sqlite3_file):
         self.dbpath = sqlite3_file
-    
+
 
     async def initialize(self):
         async with aiosqlite.connect(self.dbpath) as db:
@@ -12,12 +12,12 @@ class DatabaseManager():
             await db.execute('''\
                 CREATE TABLE IF NOT EXISTS PLAYER_STATS (
                     user_id int, stat varchar(255), strength int, dexterity int, constitution int,
-                    intelligence int, wisdom int, charisma int, av int, ac int, hp int
+                    intelligence int, wisdom int, charisma int, av int, ac int, hp int, st int
                 )''')
             await db.execute('CREATE TABLE IF NOT EXISTS PLAYER_MACROS (user_id int, macro varchar(255), value varchar(255))')
             print("Done.")
 
-    
+
     async def get_macro(self, user, macro):
         async with aiosqlite.connect(self.dbpath) as db:
             db.row_factory = aiosqlite.Row
@@ -30,7 +30,7 @@ class DatabaseManager():
         async with aiosqlite.connect(self.dbpath) as db:
             db.row_factory = aiosqlite.Row
             async with db.execute(f'''\
-                SELECT strength, dexterity, constitution, intelligence, wisdom, charisma, av, ac, hp
+                SELECT strength, dexterity, constitution, intelligence, wisdom, charisma, av, ac, hp, st
                 FROM PLAYER_STATS
                 WHERE user_id = {user.id}''') as cursor:
                 result = await cursor.fetchone()
@@ -40,12 +40,12 @@ class DatabaseManager():
     async def upsert_stat(self, user, stat, value):
         stats = await self.get_stats(user)
         async with aiosqlite.connect(self.dbpath) as db:
-            if not stats:           
+            if not stats:
                 await db.execute(f'''
                     INSERT INTO PLAYER_STATS (
-                        user_id, strength, dexterity, constitution, intelligence, wisdom, charisma, av, ac, hp
+                        user_id, strength, dexterity, constitution, intelligence, wisdom, charisma, av, ac, hp, st
                     ) VALUES (
-                        {user.id}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+                        {user.id}, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
                     )''')
                 await db.commit()
 
@@ -56,7 +56,7 @@ class DatabaseManager():
     async def upsert_macro(self, user, macro, value):
         result = await self.get_macro(user, macro)
         async with aiosqlite.connect(self.dbpath) as db:
-            if not result:           
+            if not result:
                 await db.execute(f'''
                     INSERT INTO PLAYER_MACROS (
                         user_id, macro, value

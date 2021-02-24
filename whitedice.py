@@ -67,7 +67,8 @@ STAT_NAMES = {
     'cha': 'charisma',
     'av': 'av',
     'ac': 'ac',
-    'hp': 'hp'
+    'hp': 'hp',
+    'st': 'st'
 }
 
 
@@ -108,7 +109,7 @@ class WhiteDiceBot(discord.Client):
         elif m.match(VERSION_REGEX):
             num_commits = 5 if m.group(1) else 1
             version_content = subprocess.check_output(['git', 'log', '--use-mailmap', f'-n{num_commits}'])
-            await message.channel.send("Latest commits..." + 
+            await message.channel.send("Latest commits..." +
                 "\n```" + str(version_content, 'utf-8') + "```")
         elif m.match(HELP_REGEX):
             await message.channel.send(f"```{HELP_TEXT}```")
@@ -128,7 +129,7 @@ class WhiteDiceBot(discord.Client):
                 m = ValueRetainingRegexMatcher(new_cmd)
                 m.match(ROLL_REGEX)
                 await self.roll(message, m)
-            
+
 
     async def register_stat(self, message, stat, value):
         if stat not in STAT_NAMES:
@@ -167,7 +168,7 @@ class WhiteDiceBot(discord.Client):
         num_dice = int(m.group(1)) if m.group(1) else 1
         size_die = int(m.group(2)) if m.group(2) else None
         stat = m.group(3) if m.group(3) else None
-        
+
         if not stat and not size_die:
             return await message.channel.send('You must roll with a stat or a die of some size.')
         elif stat and size_die:
@@ -186,7 +187,7 @@ class WhiteDiceBot(discord.Client):
 
         less_than = m.group(6) if m.group(6) else None
         greater_than = m.group(7) if m.group(7) else None
-        
+
         # TODO: Fetch it
         stat_val = None
         if stat:
@@ -219,7 +220,7 @@ class WhiteDiceBot(discord.Client):
         less_than_result = True
         greater_than_result = True
         compare_str = f'[{post_mod}]'
-        
+
         if less_than:
             less_than = less_than.replace(' ', '')
             compare_str += less_than
@@ -233,7 +234,7 @@ class WhiteDiceBot(discord.Client):
 
         if greater_than and greater_than[0:2] == '>=':
             greater_than_result = post_mod >= int(greater_than[2:])
-            compare_str = f'{greater_than[2:]}<=' + compare_str 
+            compare_str = f'{greater_than[2:]}<=' + compare_str
         elif greater_than and greater_than[0] == '>':
             greater_than_result = post_mod > int(greater_than[1:])
             compare_str = f'{greater_than[1:]}<' + compare_str
