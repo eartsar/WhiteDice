@@ -55,7 +55,7 @@ PING_REGEX = re.compile(r'!ping')
 HELP_REGEX = re.compile(r'!help')
 VERSION_REGEX = re.compile(r'!version(?: (.+))?')
 ROLL_REGEX = re.compile(r'^\!roll (?:(\d+)?\s?[dD]\s?(\d{1,4})|(str|dex|wis|cha|int|con|av|st))\s?([+-]\s?\d{1,2})?\s?(\+{1,2}|-{1,2})?\s?(<=?\s?\d{1,4})?\s?(>=?\s?\d{1,4})?$')
-STAT_REGEX = re.compile(r'\!stat (str|dex|con|int|wis|cha|av|ac|st|hp) (\d{1,2})')
+STAT_REGEX = re.compile(r'\!stat (str|dex|con|int|wis|cha|av|ac|st|hp)\s?(\d{1,2})?')
 SHEET_REGEX = re.compile(r'\!sheet')
 MACRO_REGEX = re.compile(r'\!macro ([a-zA-Z0-9]+)\s?(.+)?')
 
@@ -118,8 +118,11 @@ class WhiteDiceBot(discord.Client):
             await self.roll(message, m)
         elif m.match(STAT_REGEX):
             stat = m.group(1)
-            value = int(m.group(2).strip())
-            await self.register_stat(message, stat.lower(), value)
+            if m.group(2):
+                value = int(m.group(2).strip())
+                await self.register_stat(message, stat.lower(), value)
+            else:
+                await self.display_stat(message, stat.lower())
         elif m.match(SHEET_REGEX):
             await self.display_sheet(message)
         elif m.match(MACRO_REGEX):
@@ -145,6 +148,11 @@ class WhiteDiceBot(discord.Client):
             return
         await self.db.upsert_stat(message.author, STAT_NAMES[stat], value)
         await message.channel.send(f'{message.author.mention} - **{stat}** set to `{value}`')
+
+
+    async def display_stat(self, message, stat):
+        stats = await self.db.get_stats(message.author)
+        await message.channel.send(f"`{stat}: {stats[stat]}`")
 
 
     async def register_macro(self, message, macro, value):
