@@ -28,7 +28,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /home/eartsar/WhiteDice
-            git checkout test
+            git checkout master
             git pull
             /home/eartsar/.poetry/bin/poetry install
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S su -c 'systemctl restart whitedice'
