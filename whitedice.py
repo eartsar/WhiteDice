@@ -56,6 +56,7 @@ HELP_REGEX = re.compile(r'!help')
 VERSION_REGEX = re.compile(r'!version(?: (.+))?')
 ROLL_REGEX = re.compile(r'^\!roll (?:(\d+)?\s?[dD]\s?(\d{1,4})|(str|dex|wis|cha|int|con|av|st))\s?([+-]\s?\d{1,2})?\s?(\+{1,2}|-{1,2})?\s?(<=?\s?\d{1,4})?\s?(>=?\s?\d{1,4})?$')
 STAT_REGEX = re.compile(r'\!stat (str|dex|con|int|wis|cha|av|ac|st) (\d{1,2})')
+SHEET_REGEX = re.compile(r'\!sheet')
 MACRO_REGEX = re.compile(r'\!macro ([a-zA-Z0-9]+)\s?(.+)?')
 
 STAT_NAMES = {
@@ -119,6 +120,8 @@ class WhiteDiceBot(discord.Client):
             stat = m.group(1)
             value = int(m.group(2).strip())
             await self.register_stat(message, stat.lower(), value)
+        elif m.match(SHEET_REGEX):
+            await self.display_sheet(message)
         elif m.match(MACRO_REGEX):
             macro = m.group(1)
             value = m.group(2).strip() if m.group(2) else None
@@ -129,6 +132,12 @@ class WhiteDiceBot(discord.Client):
                 m = ValueRetainingRegexMatcher(new_cmd)
                 m.match(ROLL_REGEX)
                 await self.roll(message, m)
+
+
+    async def display_sheet(self, message):
+        stats = self.db.get_stats(message.author)
+        sheet_str = "\n".join([f'{k}: {stats[k]}' for k in sorted(stats.keys())])
+        await message.channel.send(f"```{sheet_str}```")
 
 
     async def register_stat(self, message, stat, value):
