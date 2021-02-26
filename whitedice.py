@@ -135,7 +135,7 @@ class WhiteDiceBot(discord.Client):
 
 
     async def display_sheet(self, message):
-        stats = self.db.get_stats(message.author)
+        stats = await self.db.get_stats(message.author)
         sheet_str = "\n".join([f'{k}: {stats[k]}' for k in sorted(stats.keys())])
         await message.channel.send(f"```{sheet_str}```")
 
