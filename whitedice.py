@@ -169,6 +169,7 @@ class WhiteDiceBot(discord.Client):
         size_die = int(m.group(2)) if m.group(2) else None
         stat = m.group(3) if m.group(3) else None
 
+        # Basic validation
         if not stat and not size_die:
             return await message.channel.send('You must roll with a stat or a die of some size.')
         elif stat and size_die:
@@ -176,14 +177,12 @@ class WhiteDiceBot(discord.Client):
         elif not stat and not size_die:
             return await message.channel.send('You must roll either a die or a stat.')
 
+        # Stats are d20 rolls with a high end limit
         if stat:
             size_die = 20
 
         modifier = m.group(4) if m.group(4) else None
         advantage = m.group(5) if m.group(5) else None
-
-        if advantage and num_dice > 1:
-            return await message.channel.send('Advantage only applies to single die rolls.')
 
         less_than = m.group(6) if m.group(6) else None
         greater_than = m.group(7) if m.group(7) else None
@@ -196,18 +195,35 @@ class WhiteDiceBot(discord.Client):
                 return await message.channel.send(f'You must set {stat} first (`!stat {stat} <value>`).')
             stat_val = stats[STAT_NAMES[stat]]
 
+        raw_stat_val = stat_val
 
         raw_dice = [random.randint(1, size_die) for die in range(num_dice)]
         base_value = sum(raw_dice)
 
         modifier = modifier.strip().replace(' ', '') if modifier else ''
+        
+        adv_mod = 0
+        if advantage and advantage in ('+', '-'):
+            if num_dice > 1:
+                return await message.channel.send('Advantage only applies to single die rolls.')
+
+            adv_mod = 2 if advantage == '+' else -2
+
+
         post_mod = base_value
         if modifier:
             # For stat checks, mods affect the upper bound
             if stat:
-                stat_val = stat_val + int(modifier[1:]) if modifier[0] == '+' else base_value - int(modifier[1:])
+                stat_val += int(modifier[1:]) if modifier[0] == '+' else base_value - int(modifier[1:])
             else:
-                post_mod = post_mod + int(modifier[1:]) if modifier[0] == '+' else base_value - int(modifier[1:])
+                post_mod += int(modifier[1:]) if modifier[0] == '+' else base_value - int(modifier[1:])
+                
+
+        if advantage:
+            if stat:
+                stat_val += adv_mod
+            else:
+                post_mod += adv_mod
 
 
         if not less_than and stat:
@@ -242,13 +258,14 @@ class WhiteDiceBot(discord.Client):
         was_compared = bool(less_than or greater_than)
         compared_result = less_than_result and greater_than_result
 
-        die_str = f'{num_dice}d{size_die}'
+        die_str = f'[{num_dice}d{size_die}]    {"( `" + stat + ": " + str(raw_stat_val) + "` )" if stat else ""}'
         mod_str = f' {modifier} ' if modifier and not stat else ' '
+        adv_str = f'\n*with {"advantage `+2`" if advantage == "+" else "disadvantage `-2`"}*' if advantage else ''
         raw_str = f'`{" ".join(["[" + str(_) + "]" for _ in raw_dice])}`'
         comp_str = f'Within bounds `{compare_str}` --> {"PASS" if compared_result else "FAIL"}!' if was_compared else ''
         crit_str = f' **CRITICAL!!**' if was_crit else ''
 
-        await message.channel.send(f'Rolling {die_str}{mod_str}...\n{raw_str}\nTOTAL: **{post_mod}**!\n{comp_str}{crit_str}')
+        await message.channel.send(f'Rolling {die_str}{mod_str}...{adv_str}\n{raw_str}\nTOTAL: **{post_mod}**!\n{comp_str}{crit_str}')
 
 
 def main():
