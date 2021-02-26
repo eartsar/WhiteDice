@@ -152,7 +152,7 @@ class WhiteDiceBot(discord.Client):
 
     async def display_stat(self, message, stat):
         stats = await self.db.get_stats(message.author)
-        await message.channel.send(f"`{stat}: {stats[stat]}`")
+        await message.channel.send(f"`{stat}: {stats[STAT_NAMES[stat]]}`")
 
 
     async def register_macro(self, message, macro, value):
