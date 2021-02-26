@@ -231,9 +231,9 @@ class WhiteDiceBot(discord.Client):
         if modifier:
             # For stat checks, mods affect the upper bound
             if stat:
-                stat_val += int(modifier[1:]) if modifier[0] == '+' else base_value - int(modifier[1:])
+                stat_val += int(modifier[1:]) if modifier[0] == '+' else  -1 * int(modifier[1:])
             else:
-                post_mod += int(modifier[1:]) if modifier[0] == '+' else base_value - int(modifier[1:])
+                post_mod += int(modifier[1:]) if modifier[0] == '+' else -1 * int(modifier[1:])
                 
 
         if advantage:
