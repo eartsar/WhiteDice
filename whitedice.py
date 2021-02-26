@@ -54,8 +54,8 @@ HELP_TEXT = '''\
 PING_REGEX = re.compile(r'!ping')
 HELP_REGEX = re.compile(r'!help')
 VERSION_REGEX = re.compile(r'!version(?: (.+))?')
-ROLL_REGEX = re.compile(r'^\!roll (?:(\d+)?\s?[dD]\s?(\d{1,4})|(str|dex|wis|cha|int|con))\s?([+-]\s?\d{1,2})?\s?(\+{1,2}|-{1,2})?\s?(<=?\s?\d{1,4})?\s?(>=?\s?\d{1,4})?$')
-STAT_REGEX = re.compile(r'\!stat (str|dex|con|int|wis|cha|av|ac) (\d{1,2})')
+ROLL_REGEX = re.compile(r'^\!roll (?:(\d+)?\s?[dD]\s?(\d{1,4})|(str|dex|wis|cha|int|con|av|st))\s?([+-]\s?\d{1,2})?\s?(\+{1,2}|-{1,2})?\s?(<=?\s?\d{1,4})?\s?(>=?\s?\d{1,4})?$')
+STAT_REGEX = re.compile(r'\!stat (str|dex|con|int|wis|cha|av|ac|st) (\d{1,2})')
 MACRO_REGEX = re.compile(r'\!macro ([a-zA-Z0-9]+)\s?(.+)?')
 
 STAT_NAMES = {
